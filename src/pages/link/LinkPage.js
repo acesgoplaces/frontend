@@ -171,15 +171,6 @@ class LinkPage extends React.Component {
               lat={latitude}
               lng={longitude}
             />
-            {/* <div className="debug-info">
-            <pre>
-              debug info
-              
-              {JSON.stringify(location, null, 2)}
-              {JSON.stringify(orientation, null, 2)}
-              {JSON.stringify(battery, null, 2)}
-            </pre>
-          </div> */}
           </div>
           <div className="hidden">
             <input

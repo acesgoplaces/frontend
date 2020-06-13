@@ -18,6 +18,20 @@ const sendLocation = async ({ location, userId }) => {
   return result.data
 }
 
+const sendOrientation = async ({ orientation, userId }) => {
+  const result = await api.put(`/orientation`, { orientation }, {
+    headers: { 'User-Id': userId }
+  })
+  return result.data
+}
+
+const sendBattery = async ({ battery, userId }) => {
+  const result = await api.put(`/battery`, { battery }, {
+    headers: { 'User-Id': userId }
+  })
+  return result.data
+}
+
 const uploadPhoto = async ({ photo, userId }) => {
   const formData = new FormData()
   formData.append('photo', photo)
@@ -30,8 +44,16 @@ const uploadPhoto = async ({ photo, userId }) => {
   return result.data
 }
 
+const getUsers = async () => {
+  const result = await api.get(`/users`)
+  return result.data
+}
+
 export default {
   call995,
   sendLocation,
-  uploadPhoto
+  sendBattery,
+  sendOrientation,
+  uploadPhoto,
+  getUsers,
 }
