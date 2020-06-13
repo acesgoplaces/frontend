@@ -1,0 +1,43 @@
+{
+  "name": "aces-frontend",
+  "private": true,
+  "description": "frontend for aces go places",
+  "version": "1.0.0",
+  "author": "ACES Go Places",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "gatsby": "^2.22.15",
+    "gatsby-image": "^2.4.5",
+    "gatsby-plugin-manifest": "^2.4.9",
+    "gatsby-plugin-offline": "^3.2.7",
+    "gatsby-plugin-react-helmet": "^3.3.4",
+    "gatsby-plugin-sass": "^2.3.4",
+    "gatsby-plugin-sharp": "^2.6.9",
+    "gatsby-source-filesystem": "^2.3.8",
+    "gatsby-transformer-sharp": "^2.5.3",
+    "node-sass": "^4.14.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-helmet": "^6.1.0"
+  },
+  "devDependencies": {
+    "prettier": "2.0.5"
+  },
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run develop",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acesgoplaces/frontend"
+  },
+  "bugs": {
+    "url": "https://github.com/acesgoplaces/frontend/issues"
+  }
+}
