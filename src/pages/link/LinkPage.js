@@ -1,5 +1,6 @@
 import React from 'react'
 import { Helmet } from "react-helmet"
+import cc from 'classcat'
 import SCDFLogo from '../../components/SCDFLogo'
 
 import './LinkPage.scss'
@@ -68,7 +69,7 @@ class LinkPage extends React.Component {
       navigator.permissions.query({ name: "gyroscope" })
     ])
 
-    if(!perms.every(r => r.state === `granted`)){
+    if (!perms.every(r => r.state === `granted`)) {
       return null
     }
 
@@ -93,7 +94,7 @@ class LinkPage extends React.Component {
 
   beginBatteryTracking = async () => {
     const battery = await navigator.getBattery()
-    const { 
+    const {
       charging,
       level,
       chargingTime,
@@ -113,12 +114,9 @@ class LinkPage extends React.Component {
     const isSSR = typeof window === "undefined"
     if (!isSSR) {
       this.beginLocationTracking()
-
-      this.beginOrientationTracking()
-
-      this.beginBatteryTracking()
-
-      window.navigator.vibrate([100, 100])
+      // this.beginOrientationTracking()
+      // this.beginBatteryTracking()
+      // window.navigator.vibrate([100, 100])
     }
   }
 
@@ -142,7 +140,7 @@ class LinkPage extends React.Component {
           <h1>995 Hotline</h1>
         </div>
         <div className="main">
-          <div className="tracking-status">
+          <div className={cc(["tracking-status", trackingSuccess ? "success" : ""])}>
             {
               trackingSuccess ? (
                 <p>✅&nbsp;&nbsp;Sharing location with 995 operator</p>
@@ -153,7 +151,13 @@ class LinkPage extends React.Component {
                 )
             }
           </div>
-          <div className="debug-info">
+          <div style={{
+            backgroundImage: "url('https://a.uguu.se/z0bwQQkZjU6M.png')",
+            width: '100vw',
+            height: '100vh',
+            backgroundSize: `cover`,
+          }} />
+          {/* <div className="debug-info">
             <pre>
               debug info
               
@@ -161,7 +165,7 @@ class LinkPage extends React.Component {
               {JSON.stringify(orientation, null, 2)}
               {JSON.stringify(battery, null, 2)}
             </pre>
-          </div>
+          </div> */}
         </div>
         <div className="hidden">
           <input
@@ -172,13 +176,13 @@ class LinkPage extends React.Component {
           />
         </div>
         <div className="footer">
-            <div className="photo-button" onClick={this.takePhoto}>
-              📷&nbsp;&nbsp;Photo
+          <div className="photo-button" onClick={this.takePhoto}>
+            📷&nbsp;&nbsp;Photo
             </div>
-            <div className="video-button">
-              🎥&nbsp;&nbsp;Video
+          <div className="video-button">
+            🎥&nbsp;&nbsp;Video
             </div>
-          </div>
+        </div>
       </div >
     )
   }

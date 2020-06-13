@@ -11,6 +11,10 @@ html, body, .container {
   @supports (-webkit-appearance:none) {
     height: calc(100vh - 56px);
   }
+
+  p {
+    margin: 0;
+  }
 }
 
 .container {
@@ -48,7 +52,13 @@ html, body, .container {
     flex: 1;
     overflow-y: scroll;
     .tracking-status {
-      padding: 20px
+      background-color: $blue;
+      padding: 10px 20px 10px 20px;
+      color: white;
+    }
+
+    .tracking-status.success {
+      background-color: $green;
     }
   }
 
