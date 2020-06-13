@@ -11,15 +11,37 @@ class LinkPage extends React.Component {
     super(props)
     this.state = {
       trackingSuccess: false,
+      orientation: [],
+      location: {},
+      battery: {},
     }
   }
 
-  receivePosition = ({ coords, timestamp }) => {
+  receivePosition = ({ coords }) => {
     const { trackingSuccess } = this.state
     if (!trackingSuccess) {
       this.setState({ trackingSuccess: true })
     }
-    console.log(coords, timestamp)
+    const {
+      accuracy,
+      altitude,
+      altitudeAccuracy,
+      heading,
+      latitude,
+      longitude,
+      speed,
+    } = coords
+    this.setState({
+      location: {
+        accuracy,
+        altitude,
+        altitudeAccuracy,
+        heading,
+        latitude,
+        longitude,
+        speed,
+      }
+    })
   }
 
   trackingError = ({ code, message }) => {
@@ -31,15 +53,60 @@ class LinkPage extends React.Component {
   }
 
   beginLocationTracking = () => {
-    //watchPosition
-    navigator.geolocation.getCurrentPosition(
+    navigator.geolocation.watchPosition(
       this.receivePosition,
       this.trackingError
     )
   }
 
-  receiveOrientation = (data) => {
-    console.log(data)
+  beginOrientationTracking = async () => {
+    // will only run on Chrome / Safari mobile
+
+    const perms = await Promise.all([
+      navigator.permissions.query({ name: "accelerometer" }),
+      navigator.permissions.query({ name: "magnetometer" }),
+      navigator.permissions.query({ name: "gyroscope" })
+    ])
+
+    if(!perms.every(r => r.state === `granted`)){
+      return null
+    }
+
+    const options = { frequency: 60, referenceFrame: 'device' }
+    const sensor = new AbsoluteOrientationSensor(options)
+
+    sensor.addEventListener('reading', data => {
+      const { target: { quaternion } } = data
+      this.setState({
+        orientation: quaternion
+      })
+    })
+    sensor.addEventListener('error', error => {
+      if (event.error.name == 'NotReadableError') {
+        console.log("Sensor is not available.")
+      }
+      console.error(error)
+    })
+
+    sensor.start()
+  }
+
+  beginBatteryTracking = async () => {
+    const battery = await navigator.getBattery()
+    const { 
+      charging,
+      level,
+      chargingTime,
+      dischargingTime
+    } = battery
+    this.setState({
+      battery: {
+        charging,
+        level,
+        chargingTime,
+        dischargingTime
+      }
+    })
   }
 
   componentDidMount() {
@@ -47,15 +114,21 @@ class LinkPage extends React.Component {
     if (!isSSR) {
       this.beginLocationTracking()
 
-      if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', this.receiveOrientation, false)
-      }
+      this.beginOrientationTracking()
 
+      this.beginBatteryTracking()
+
+      window.navigator.vibrate([100, 100])
     }
   }
 
   render() {
-    const { trackingSuccess } = this.state
+    const {
+      trackingSuccess,
+      location,
+      orientation,
+      battery
+    } = this.state
     return (
       <div className="container">
         <Helmet title="995 Hotline" />
@@ -74,6 +147,15 @@ class LinkPage extends React.Component {
                   </p>
                 )
             }
+          </div>
+          <div className="debug-info">
+            <pre>
+              debug info
+              
+              {JSON.stringify(location, null, 2)}
+              {JSON.stringify(orientation, null, 2)}
+              {JSON.stringify(battery, null, 2)}
+            </pre>
           </div>
         </div>
       </div >
