@@ -1,23 +1,6 @@
-$orange: rgb(248, 70, 0);
-$blue: rgb(35, 65, 139);
-$green: #006338;
+@import 'src/styles/core.scss';
 
-html, body, .container {
-  width: 100vw;
-  height: 100vh;
-  font-family: Helvetica, Roboto, 'Segoe UI', sans-serif;
-  padding: 0;
-  margin: 0;
-  @supports (-webkit-appearance:none) {
-    height: calc(100vh - 56px);
-  }
-
-  p {
-    margin: 0;
-  }
-}
-
-.container {
+.link-page.container {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -51,6 +34,13 @@ html, body, .container {
     flex-direction: column;
     flex: 1;
     overflow-y: scroll;
+    overflow-x: hidden;
+    scrollbar-width: none;
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  
     .tracking-status {
       background-color: $blue;
       padding: 10px 20px 10px 20px;
@@ -59,6 +49,12 @@ html, body, .container {
 
     .tracking-status.success {
       background-color: $green;
+    }
+
+    #placeholder {
+      width: $max-width;
+      height: 80vh;
+      max-height: 100%;
     }
   }
 

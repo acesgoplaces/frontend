@@ -2,6 +2,8 @@ import React from 'react'
 import { Helmet } from "react-helmet"
 import cc from 'classcat'
 import SCDFLogo from '../../components/SCDFLogo'
+import PhoneContainer from '../../components/PhoneContainer'
+import Api from '../../utils/Api'
 
 import './LinkPage.scss'
 
@@ -18,7 +20,7 @@ class LinkPage extends React.Component {
     }
   }
 
-  receivePosition = ({ coords }) => {
+  receivePosition = async ({ coords }) => {
     const { trackingSuccess } = this.state
     if (!trackingSuccess) {
       this.setState({ trackingSuccess: true })
@@ -43,6 +45,9 @@ class LinkPage extends React.Component {
         speed,
       }
     })
+
+    const { id: userId } = this.props
+    await Api.sendLocation({ location, userId })
   }
 
   trackingError = ({ code, message }) => {
@@ -121,7 +126,12 @@ class LinkPage extends React.Component {
   }
 
   takePhoto = () => document.getElementById(`photo-input`).click()
-  uploadPhoto = ({ target: { files } }) => console.log(files)
+  uploadPhoto = async ({ target: { files } }) => {
+    const photo = files[0]
+    const { userId } = this.props
+    await Api.uploadPhoto({ photo, userId })
+    window.alert(`Photo successfully sent`)
+  }
 
   render() {
     const {
@@ -131,33 +141,32 @@ class LinkPage extends React.Component {
       battery
     } = this.state
     return (
-      <div className="container">
-        <Helmet title="995 Hotline">
-          <meta name="viewport" content="minimal-ui, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        </Helmet>
-        <div className="header">
-          <SCDFLogo />
-          <h1>995 Hotline</h1>
-        </div>
-        <div className="main">
-          <div className={cc(["tracking-status", trackingSuccess ? "success" : ""])}>
-            {
-              trackingSuccess ? (
-                <p>✅&nbsp;&nbsp;Sharing location with 995 operator</p>
-              ) : (
-                  <p>
-                    Please share your GPS location with our 995 operators to help them better understand the ongoing incident.
-                  </p>
-                )
-            }
+      <PhoneContainer>
+        <div className="link-page container">
+          <Helmet title="995 Hotline">
+            <meta name="viewport" content="minimal-ui, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+          </Helmet>
+          <div className="header">
+            <SCDFLogo />
+            <h1>995 Hotline</h1>
           </div>
-          <div style={{
-            backgroundImage: "url('https://a.uguu.se/z0bwQQkZjU6M.png')",
-            width: '100vw',
-            height: '100vh',
-            backgroundSize: `cover`,
-          }} />
-          {/* <div className="debug-info">
+          <div className="main">
+            <div className={cc(["tracking-status", trackingSuccess ? "success" : ""])}>
+              {
+                trackingSuccess ? (
+                  <p>✅&nbsp;&nbsp;Sharing location with 995 operator</p>
+                ) : (
+                    <p>
+                      Please share your GPS location with our 995 operators to help them better understand the ongoing incident.
+                    </p>
+                  )
+              }
+            </div>
+            <div style={{
+              backgroundImage: "url('https://a.uguu.se/z0bwQQkZjU6M.png')",
+              backgroundSize: `cover`,
+            }} id="placeholder" />
+            {/* <div className="debug-info">
             <pre>
               debug info
               
@@ -166,24 +175,25 @@ class LinkPage extends React.Component {
               {JSON.stringify(battery, null, 2)}
             </pre>
           </div> */}
-        </div>
-        <div className="hidden">
-          <input
-            type="file"
-            accept="image/*;capture=camera"
-            onChange={this.uploadPhoto}
-            id="photo-input"
-          />
-        </div>
-        <div className="footer">
-          <div className="photo-button" onClick={this.takePhoto}>
-            📷&nbsp;&nbsp;Photo
+          </div>
+          <div className="hidden">
+            <input
+              type="file"
+              accept="image/*;capture=camera"
+              onChange={this.uploadPhoto}
+              id="photo-input"
+            />
+          </div>
+          <div className="footer">
+            <div className="photo-button" onClick={this.takePhoto}>
+              📷&nbsp;&nbsp;Photo
             </div>
-          <div className="video-button">
-            🎥&nbsp;&nbsp;Video
+            <div className="video-button">
+              🎥&nbsp;&nbsp;Video
             </div>
-        </div>
-      </div >
+          </div>
+        </div >
+      </PhoneContainer>
     )
   }
 }

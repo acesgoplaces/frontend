@@ -1,0 +1,16 @@
+@import 'src/styles/core.scss';
+
+.phone-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+
+  .subcontainer {
+    width: 100vw;
+    height: 100vh;
+    max-width: $max-width;
+    max-height: $max-height;
+    border: 1px solid black;
+  }
+}

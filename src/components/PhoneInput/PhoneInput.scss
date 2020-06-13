@@ -1,0 +1,11 @@
+.phone-input {
+  display: flex;
+  flex-direction: row;
+
+  .prepend {
+    padding: 5px 10px 5px 10px;
+  }
+  >input {
+    padding: 5px 10px 5px 10px;
+  }
+}
