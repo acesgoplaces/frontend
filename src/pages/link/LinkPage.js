@@ -122,6 +122,9 @@ class LinkPage extends React.Component {
     }
   }
 
+  takePhoto = () => document.getElementById(`photo-input`).click()
+  uploadPhoto = ({ target: { files } }) => console.log(files)
+
   render() {
     const {
       trackingSuccess,
@@ -131,7 +134,9 @@ class LinkPage extends React.Component {
     } = this.state
     return (
       <div className="container">
-        <Helmet title="995 Hotline" />
+        <Helmet title="995 Hotline">
+          <meta name="viewport" content="minimal-ui, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        </Helmet>
         <div className="header">
           <SCDFLogo />
           <h1>995 Hotline</h1>
@@ -158,6 +163,22 @@ class LinkPage extends React.Component {
             </pre>
           </div>
         </div>
+        <div className="hidden">
+          <input
+            type="file"
+            accept="image/*;capture=camera"
+            onChange={this.uploadPhoto}
+            id="photo-input"
+          />
+        </div>
+        <div className="footer">
+            <div className="photo-button" onClick={this.takePhoto}>
+              📷&nbsp;&nbsp;Photo
+            </div>
+            <div className="video-button">
+              🎥&nbsp;&nbsp;Video
+            </div>
+          </div>
       </div >
     )
   }

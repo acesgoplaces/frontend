@@ -1,5 +1,22 @@
-.container {
+$orange: rgb(248, 70, 0);
+$blue: rgb(35, 65, 139);
+$green: #006338;
+
+html, body, .container {
+  width: 100vw;
+  height: 100vh;
   font-family: Helvetica, Roboto, 'Segoe UI', sans-serif;
+  padding: 0;
+  margin: 0;
+  @supports (-webkit-appearance:none) {
+    height: calc(100vh - 56px);
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 
   .header {
     display: flex;
@@ -8,11 +25,15 @@
     align-items: center;
     padding: 10px;
     border-bottom: 2px solid black;
+    height: 20vh;
+    max-height: 50px;
 
     .gatsby-image-wrapper {
       // scdf logo
       width: 20vw;
       min-width: 50px;
+      max-width: 50px;
+      max-height: 50px;
     }
 
     h1 {
@@ -22,8 +43,41 @@
   }
 
   .main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: scroll;
     .tracking-status {
       padding: 20px
+    }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+    .photo-button,
+    .video-button {
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .photo-button {
+      background-color: $blue;
+    }
+
+    .video-button {
+      background-color: $orange;
     }
   }
 }
