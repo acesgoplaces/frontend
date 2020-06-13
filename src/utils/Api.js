@@ -10,7 +10,7 @@ const call995 = async ({ phone, fake = false }) => {
 }
 
 const sendLocation = async ({ location, userId }) => {
-  const result = await api.post(`/location`, { location }, {
+  const result = await api.put(`/location`, { location }, {
     headers: {
       'User-Id': userId
     }

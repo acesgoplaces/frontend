@@ -4,9 +4,14 @@ import cc from 'classcat'
 import SCDFLogo from '../../components/SCDFLogo'
 import PhoneContainer from '../../components/PhoneContainer'
 import Api from '../../utils/Api'
+import LiveMap from '../../components/LiveMap'
+import {
+  AbsoluteOrientationSensor
+} from 'motion-sensors-polyfill'
 
 import './LinkPage.scss'
-
+const isSSR = typeof window === "undefined"
+const isMobile = navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)
 
 class LinkPage extends React.Component {
 
@@ -34,17 +39,16 @@ class LinkPage extends React.Component {
       longitude,
       speed,
     } = coords
-    this.setState({
-      location: {
-        accuracy,
-        altitude,
-        altitudeAccuracy,
-        heading,
-        latitude,
-        longitude,
-        speed,
-      }
-    })
+    const location = {
+      accuracy,
+      altitude,
+      altitudeAccuracy,
+      heading,
+      latitude,
+      longitude,
+      speed,
+    }
+    this.setState({ location })
 
     const { id: userId } = this.props
     await Api.sendLocation({ location, userId })
@@ -66,8 +70,6 @@ class LinkPage extends React.Component {
   }
 
   beginOrientationTracking = async () => {
-    // will only run on Chrome / Safari mobile
-
     const perms = await Promise.all([
       navigator.permissions.query({ name: "accelerometer" }),
       navigator.permissions.query({ name: "magnetometer" }),
@@ -88,7 +90,7 @@ class LinkPage extends React.Component {
       })
     })
     sensor.addEventListener('error', error => {
-      if (event.error.name == 'NotReadableError') {
+      if (error.name === 'NotReadableError') {
         console.log("Sensor is not available.")
       }
       console.error(error)
@@ -116,11 +118,12 @@ class LinkPage extends React.Component {
   }
 
   componentDidMount() {
-    const isSSR = typeof window === "undefined"
-    if (!isSSR) {
+    if (!isSSR && isMobile) {
+      document.querySelector(`html`).requestFullscreen()
+
       this.beginLocationTracking()
-      // this.beginOrientationTracking()
-      // this.beginBatteryTracking()
+      this.beginOrientationTracking()
+      this.beginBatteryTracking()
       // window.navigator.vibrate([100, 100])
     }
   }
@@ -140,6 +143,8 @@ class LinkPage extends React.Component {
       orientation,
       battery
     } = this.state
+
+    const { latitude, longitude } = location
     return (
       <PhoneContainer>
         <div className="link-page container">
@@ -162,10 +167,10 @@ class LinkPage extends React.Component {
                   )
               }
             </div>
-            <div style={{
-              backgroundImage: "url('https://a.uguu.se/z0bwQQkZjU6M.png')",
-              backgroundSize: `cover`,
-            }} id="placeholder" />
+            <LiveMap
+              lat={latitude}
+              lng={longitude}
+            />
             {/* <div className="debug-info">
             <pre>
               debug info
@@ -179,17 +184,19 @@ class LinkPage extends React.Component {
           <div className="hidden">
             <input
               type="file"
-              accept="image/*;capture=camera"
+              accept="image/*;video/*;capture=camera"
               onChange={this.uploadPhoto}
               id="photo-input"
             />
           </div>
           <div className="footer">
             <div className="photo-button" onClick={this.takePhoto}>
-              📷&nbsp;&nbsp;Photo
+              <div>📷</div>
+              <div>Submit Photo/Video</div>
             </div>
             <div className="video-button">
-              🎥&nbsp;&nbsp;Video
+              <div>🎥</div>
+              <div>Share Live Video</div>
             </div>
           </div>
         </div >
