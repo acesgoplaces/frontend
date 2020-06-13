@@ -5,13 +5,13 @@ import SCDFLogo from '../../components/SCDFLogo'
 import PhoneContainer from '../../components/PhoneContainer'
 import Api from '../../utils/Api'
 import LiveMap from '../../components/LiveMap'
-import {
-  AbsoluteOrientationSensor
-} from 'motion-sensors-polyfill'
+import { AbsoluteOrientationSensor } from 'motion-sensors-polyfill'
 
 import './LinkPage.scss'
+
 const isSSR = typeof window === "undefined"
-const isMobile = navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)
+const isApple = navigator.userAgent.match(/iPhone|iPad|iPod/i)
+const isMobile = !isSSR && navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)
 
 class LinkPage extends React.Component {
 
@@ -118,12 +118,18 @@ class LinkPage extends React.Component {
   }
 
   componentDidMount() {
-    if (!isSSR && isMobile) {
-      document.querySelector(`html`).requestFullscreen()
 
+    if (!isSSR) {
+      // document.querySelector(`html`).requestFullscreen()
       this.beginLocationTracking()
-      this.beginOrientationTracking()
-      this.beginBatteryTracking()
+      if (isMobile) {
+        if (isApple) {
+          document.getElementById(`ios-gyroscope`).click()
+        } else {
+          this.beginOrientationTracking()
+          this.beginBatteryTracking()
+        }
+      }
       // window.navigator.vibrate([100, 100])
     }
   }
@@ -134,6 +140,17 @@ class LinkPage extends React.Component {
     const { userId } = this.props
     await Api.uploadPhoto({ photo, userId })
     window.alert(`Photo successfully sent`)
+  }
+
+  iosGyroscopePerms = async () => {
+    const perms = await window.DeviceMotionEvent.requestPermission()
+    if (perms === `granted`) {
+      window.addEventListener(`devicemotion`, this.receiveiOSGyroscope)
+    }
+  }
+
+  receiveiOSGyroscope = ({ accelerationIncludingGravity: { x, y, z } }) => {
+    this.setState({ orientation: [x, y, z, 0] })
   }
 
   render() {
@@ -170,6 +187,7 @@ class LinkPage extends React.Component {
             <LiveMap
               lat={latitude}
               lng={longitude}
+              z={orientation[3]}
             />
           </div>
           <div className="hidden">
@@ -179,6 +197,10 @@ class LinkPage extends React.Component {
               onChange={this.uploadPhoto}
               id="photo-input"
             />
+            <button
+              onClick={this.iosGyroscopePerms}
+              style={{ display: 'none' }}
+              id="ios-gyroscope" />
           </div>
           <div className="footer">
             <div className="photo-button" onClick={this.takePhoto}>

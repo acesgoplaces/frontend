@@ -14,3 +14,18 @@ exports.onCreatePage = async ({ page, actions }) => {
     createPage(page)
   }
 }
+
+exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
+  if (stage === "build-html") {
+    actions.setWebpackConfig({
+      module: {
+        rules: [
+          {
+            test: /(motion-sensors-polyfill|leaflet|react-leaflet)/,
+            use: loaders.null(),
+          },
+        ],
+      },
+    })
+  }
+}

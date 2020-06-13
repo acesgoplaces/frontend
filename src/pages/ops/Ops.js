@@ -3,9 +3,7 @@ import Map from '../../components/Map'
 import Api from '../../utils/Api'
 
 import "./Ops.scss"
-
 const isSSR = typeof window === "undefined"
-
 
 class Ops extends React.Component {
   timer = null
@@ -18,10 +16,9 @@ class Ops extends React.Component {
   }
 
   componentDidMount() {
-    if (isSSR) {
-      return
+    if (!isSSR) {
+      this.timer = window.setInterval(this.fetchUsers, 3000)
     }
-    this.timer = window.setInterval(this.fetchUsers, 3000)
   }
 
   fetchUsers = async () => {
