@@ -31,9 +31,9 @@ class Home extends React.Component {
       <PhoneContainer>
         <div className="home-page container">
           <div className="intro">
-            <h1>ACES</h1>
+            <h1>PLACES</h1>
             <p>
-              ACES provides richer information to 995 operators to help with sense-making and triage.
+              PLACES provides richer information to 995 operators to help with sense-making and triage.
               It allows callers to share their location, photos, and live video with the operator,
               saving valuable time when trying to help first responders navigate to the incident site as quickly
               as possible.
@@ -44,16 +44,16 @@ class Home extends React.Component {
           <div className="demo">
             <h1>Live Demo</h1>
             <p>
-              ACES is meant to be activated by 995 operators at their discretion.
+              PLACES is meant to be activated by 995 operators at their discretion.
               However, for demo purposes, the form below will allow you to try out
-              ACES on your own phone.
+              PLACES on your own phone.
             </p>
             {
               smsSent ? (
                 <p>Please check your phone. The message should arrive shortly.</p>
               ) : (
                   <>
-                    <p>Key in your mobile phone number below to receive an ACES message.</p>
+                    <p>Key in your mobile phone number below to receive an PLACES message.</p>
                     <PhoneInput
                       value={phone}
                       onChange={this.updatePhone}
@@ -63,10 +63,17 @@ class Home extends React.Component {
                 )
             }
             <p>
-              After opening the message, you can also&nbsp;
-              <Link to="/ops">demo ACES from the operator's perspective</Link>.
-              This page has many elements and is best viewed on a computer rather than a phone.
+              If you don't receive a SMS after a few minutes (possibly because my SMS plan has been exhausted), then open&nbsp;
+              <Link to="/l/demo">
+                this link
+              </Link>
+              &nbsp;on your phone instead.
             </p>
+            {/* <p>
+              After opening the message, you can also&nbsp;
+              <Link to="/ops">demo PLACES from the operator's perspective</Link>.
+              This page has many elements and is best viewed on a computer rather than a phone.
+            </p> */}
           </div>
         </div >
       </PhoneContainer >
