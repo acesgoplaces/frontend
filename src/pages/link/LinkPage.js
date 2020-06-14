@@ -170,15 +170,17 @@ class LinkPage extends React.Component {
     }
 
     const convert = (z) => {
+      let result = 0
       if (z >= 0 && z <= 90) {
-        return scale(z, 0, 90, 0.5, 1)
+        result = scale(z, 0, 90, 0.5, 1)
       } else if (z >= 90 && z <= 180) {
-        return scale(z, 90, 180, -1, -0.5)
+        result = scale(z, 90, 180, -1, -0.5)
       } else if (z >= 180 && z <= 270) {
-        return scale(z, 180, 270, -0.5, 0)
+        result = scale(z, 180, 270, -0.5, 0)
       } else {
-        return scale(z, 270, 360, 0, 0.5)
+        result = scale(z, 270, 360, 0, 0.5)
       }
+      return result < -0.5 ? (1.5 + result) : result - 0.5
     }
 
     this.setState({ orientation: [x, y, convert(z), 0] })
@@ -207,7 +209,7 @@ class LinkPage extends React.Component {
             <div className={cc(["tracking-status", trackingSuccess ? "success" : ""])}>
               {
                 trackingSuccess ? (
-                  <p>✅&nbsp;&nbsp;Sharing location with 995 operator</p>
+                  <p>✅&nbsp;&nbsp;Sharing location with 995 operator {orientation[2]}</p>
                 ) : (
                     <p>
                       Please share your GPS location with our 995 operators to help them better understand the ongoing incident.
