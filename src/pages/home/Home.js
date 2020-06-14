@@ -20,7 +20,7 @@ class Home extends React.Component {
 
   simulateCall = async () => {
     const { phone } = this.state
-    await Api.call995({ phone, fake: true })
+    await Api.call995({ phone })
 
     this.setState({ smsSent: true })
   }

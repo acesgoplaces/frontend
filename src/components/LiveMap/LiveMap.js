@@ -4,15 +4,21 @@ import { Circle, Polygon, Popup } from 'react-leaflet'
 
 import MapUtils from '../../utils/MapUtils'
 
-const LiveMap = ({ lat, lng, z = null, popupContent = null }) => {
+const LiveMap = ({
+  viewport,
+  lat,
+  lng,
+  z = null,
+  popupContent = null,
+  onViewportChanged
+}) => {
   const popup = popupContent ? (
     <Popup>
       {popupContent}
-      {z}
     </Popup>
   ) : null
   return (
-    <Map lat={lat} lng={lng} zoom={20}>
+    <Map viewport={viewport} onViewportChanged={onViewportChanged}>
       {
         (lat && lng) ? (
           z !== null ? (

@@ -23,8 +23,13 @@ class LinkPage extends React.Component {
       orientation: [],
       location: {},
       battery: {},
+      viewport: undefined,
     }
   }
+
+  viewportChanged = viewport => this.setState({ viewport })
+
+  setInitialLocate = () => this.setState({ setInitialLocate: true })
 
   receivePosition = async ({ coords }) => {
     const { trackingSuccess } = this.state
@@ -50,6 +55,16 @@ class LinkPage extends React.Component {
       speed,
     }
     this.setState({ location })
+
+    const { viewport } = this.state
+    if (!viewport) {
+      this.setState({
+        viewport: {
+          center: [latitude, longitude],
+          zoom: 20
+        }
+      })
+    }
 
     const { id: userId } = this.props
     await Api.sendLocation({ location, userId })
@@ -135,6 +150,7 @@ class LinkPage extends React.Component {
       }
 
       if (isMobile && !(isApple && !isiOS11)) {
+        this.beginLocationTracking()
         this.beginOrientationTracking()
         this.beginBatteryTracking()
       }
@@ -199,12 +215,14 @@ class LinkPage extends React.Component {
     })
   }
 
+  liveStream = () => window.location.href = "/livestream"
+
   render() {
     const {
       trackingSuccess,
       location,
       orientation,
-      battery
+      viewport
     } = this.state
 
     const { latitude, longitude } = location
@@ -226,7 +244,7 @@ class LinkPage extends React.Component {
                     (orientation.length === 0 || !trackingSuccess) ? (
                       <p>Please press here to share your GPS location with our 995 operators</p>
                     ) : (
-                        <p>✅&nbsp;&nbsp;Sharing location with 995 operator {orientation[2]}</p>
+                        <p>✅&nbsp;&nbsp;Sharing location with 995 operator</p>
                       )
                   }
                 </div>
@@ -234,7 +252,7 @@ class LinkPage extends React.Component {
                   <div className={cc(["tracking-status", trackingSuccess ? "success" : ""])}>
                     {
                       trackingSuccess ? (
-                        <p>✅&nbsp;&nbsp;Sharing location with 995 operator {orientation[2]}</p>
+                        <p>✅&nbsp;&nbsp;Sharing location with 995 operator</p>
                       ) : (
                           <p>
                             Please share your GPS location with our 995 operators to help them better understand the ongoing incident.
@@ -245,6 +263,8 @@ class LinkPage extends React.Component {
                 )
             }
             <LiveMap
+              viewport={viewport}
+              onViewportChanged={this.viewportChanged}
               lat={latitude}
               lng={longitude}
               z={orientation[2]}
@@ -268,7 +288,7 @@ class LinkPage extends React.Component {
               <div>📷</div>
               <div>Submit Photo/Video</div>
             </div>
-            <div className="video-button">
+            <div className="video-button" onClick={this.liveStream}>
               <div>🎥</div>
               <div>Share Live Video</div>
             </div>
