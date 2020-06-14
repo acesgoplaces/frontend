@@ -10,7 +10,7 @@ import { AbsoluteOrientationSensor } from 'motion-sensors-polyfill'
 import './LinkPage.scss'
 
 const isSSR = typeof window === "undefined"
-const isApple = navigator.userAgent.match(/iPhone|iPad|iPod/i)
+const isApple = !isSSR && navigator.userAgent.match(/iPhone|iPad|iPod/i)
 const isiOS11 = isApple && navigator.userAgent.match(/OS 11/i)
 const isMobile = !isSSR && navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)
 
@@ -103,9 +103,6 @@ class LinkPage extends React.Component {
       sensor.start()
     } else if (isiOS11) {
       window.addEventListener(`deviceorientation`, this.receiveiOSGyroscope)
-    } else {
-      // is iOS13+
-      document.getElementById(`ios-gyroscope`).click()
     }
   }
 
@@ -137,8 +134,7 @@ class LinkPage extends React.Component {
         console.error(error)
       }
 
-      this.beginLocationTracking()
-      if (isMobile) {
+      if (isMobile && !(isApple && !isiOS11)) {
         this.beginOrientationTracking()
         this.beginBatteryTracking()
       }
@@ -151,6 +147,11 @@ class LinkPage extends React.Component {
     const { userId } = this.props
     await Api.uploadPhoto({ photo, userId })
     window.alert(`Photo successfully sent`)
+  }
+
+  iosPerms = () => {
+    this.beginLocationTracking()
+    this.iosGyroscopePerms()
   }
 
   iosGyroscopePerms = async () => {
@@ -183,7 +184,19 @@ class LinkPage extends React.Component {
       return result < -0.5 ? (1.5 + result) : result - 0.5
     }
 
-    this.setState({ orientation: [x, y, convert(z), 0] })
+    let convertedZ = convert(z)
+    convertedZ = (isApple && !isiOS11)
+      ? (convertedZ < 0) ? (convertedZ + 1) : (convertedZ - 1)
+      : convertedZ
+
+    this.setState({
+      orientation: [
+        x,
+        y,
+        convertedZ,
+        0
+      ]
+    })
   }
 
   render() {
@@ -206,17 +219,31 @@ class LinkPage extends React.Component {
             <h1>995 Hotline</h1>
           </div>
           <div className="main">
-            <div className={cc(["tracking-status", trackingSuccess ? "success" : ""])}>
-              {
-                trackingSuccess ? (
-                  <p>✅&nbsp;&nbsp;Sharing location with 995 operator {orientation[2]}</p>
-                ) : (
-                    <p>
-                      Please share your GPS location with our 995 operators to help them better understand the ongoing incident.
-                    </p>
-                  )
-              }
-            </div>
+            {
+              (isApple && !isiOS11) ? (
+                <div className="tracking-status" onClick={this.iosPerms}>
+                  {
+                    (orientation.length === 0 || !trackingSuccess) ? (
+                      <p>Please press here to share your GPS location with our 995 operators</p>
+                    ) : (
+                        <p>✅&nbsp;&nbsp;Sharing location with 995 operator {orientation[2]}</p>
+                      )
+                  }
+                </div>
+              ) : (
+                  <div className={cc(["tracking-status", trackingSuccess ? "success" : ""])}>
+                    {
+                      trackingSuccess ? (
+                        <p>✅&nbsp;&nbsp;Sharing location with 995 operator {orientation[2]}</p>
+                      ) : (
+                          <p>
+                            Please share your GPS location with our 995 operators to help them better understand the ongoing incident.
+                          </p>
+                        )
+                    }
+                  </div>
+                )
+            }
             <LiveMap
               lat={latitude}
               lng={longitude}
@@ -235,10 +262,6 @@ class LinkPage extends React.Component {
               onChange={this.uploadPhoto}
               id="photo-input"
             />
-            <button
-              onClick={this.iosGyroscopePerms}
-              style={{ display: 'none' }}
-              id="ios-gyroscope" />
           </div>
           <div className="footer">
             <div className="photo-button" onClick={this.takePhoto}>
