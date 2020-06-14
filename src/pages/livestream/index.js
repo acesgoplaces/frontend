@@ -1,2 +1,2 @@
-import Livestream from './Livestream'
-export default Livestream
+import L from './Livestream'
+export default L

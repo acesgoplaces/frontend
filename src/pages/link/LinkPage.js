@@ -215,7 +215,9 @@ class LinkPage extends React.Component {
     })
   }
 
-  liveStream = () => window.location.href = "/livestream"
+  liveStream = () => {
+    window.location.href = "/livestream"
+  }
 
   render() {
     const {

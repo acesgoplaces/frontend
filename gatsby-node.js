@@ -9,7 +9,7 @@
 exports.onCreatePage = async ({ page, actions }) => {
   const { createPage } = actions
 
-  if (page.path.match(/^\/l/)) {
+  if (page.path.match(/^\/l\//)) {
     page.matchPath = `/l/*`
     createPage(page)
   }

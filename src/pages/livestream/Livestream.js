@@ -1,5 +1,27 @@
 import React from 'react'
+import "./Livestream.scss"
 
-const Livestream = () => null
+class LivestreamScreen extends React.Component {
+  async componentDidMount() {
+    if (navigator && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: {
+            exact: `environment`
+          }
+        }
+      })
 
-export default Livestream
+      document.querySelector(`video`).srcObject = stream
+    }
+  }
+  render() {
+    return (
+      <div className="livestream-screen">
+        <video autoPlay />
+      </div>
+    )
+  }
+}
+
+export default LivestreamScreen
