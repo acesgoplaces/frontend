@@ -45,7 +45,7 @@ const uploadPhoto = async ({ photo, userId }) => {
 }
 
 const getUsers = async () => {
-  const result = await api.get(`/users`)
+  const result = await api.get(`/user`)
   return result.data
 }
 

@@ -23,6 +23,7 @@ class Ops extends React.Component {
 
   fetchUsers = async () => {
     const users = await Api.getUsers()
+    console.log(users)
     this.setState({ users })
   }
 

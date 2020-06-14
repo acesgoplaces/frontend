@@ -11,6 +11,7 @@ import './LinkPage.scss'
 
 const isSSR = typeof window === "undefined"
 const isApple = navigator.userAgent.match(/iPhone|iPad|iPod/i)
+const isiOS11 = isApple && navigator.userAgent.match(/OS 11/i)
 const isMobile = !isSSR && navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)
 
 class LinkPage extends React.Component {
@@ -63,74 +64,84 @@ class LinkPage extends React.Component {
   }
 
   beginLocationTracking = () => {
-    navigator.geolocation.watchPosition(
-      this.receivePosition,
-      this.trackingError
-    )
+    if (navigator && navigator.geolocation && typeof navigator.geolocation.watchPosition === `function`) {
+      navigator.geolocation.watchPosition(
+        this.receivePosition,
+        this.trackingError
+      )
+    }
   }
 
   beginOrientationTracking = async () => {
-    const perms = await Promise.all([
-      navigator.permissions.query({ name: "accelerometer" }),
-      navigator.permissions.query({ name: "magnetometer" }),
-      navigator.permissions.query({ name: "gyroscope" })
-    ])
+    if (navigator && navigator.permissions && typeof navigator.permissions.query === `function`) {
+      const perms = await Promise.all([
+        navigator.permissions.query({ name: "accelerometer" }),
+        navigator.permissions.query({ name: "magnetometer" }),
+        navigator.permissions.query({ name: "gyroscope" })
+      ])
 
-    if (!perms.every(r => r.state === `granted`)) {
-      return null
-    }
-
-    const options = { frequency: 60, referenceFrame: 'device' }
-    const sensor = new AbsoluteOrientationSensor(options)
-
-    sensor.addEventListener('reading', data => {
-      const { target: { quaternion } } = data
-      this.setState({
-        orientation: quaternion
-      })
-    })
-    sensor.addEventListener('error', error => {
-      if (error.name === 'NotReadableError') {
-        console.log("Sensor is not available.")
+      if (!perms.every(r => r.state === `granted`)) {
+        return null
       }
-      console.error(error)
-    })
 
-    sensor.start()
+      const options = { frequency: 60, referenceFrame: 'device' }
+      const sensor = new AbsoluteOrientationSensor(options)
+
+      sensor.addEventListener('reading', data => {
+        const { target: { quaternion } } = data
+        this.setState({
+          orientation: quaternion
+        })
+      })
+      sensor.addEventListener('error', error => {
+        if (error.name === 'NotReadableError') {
+          console.log("Sensor is not available.")
+        }
+        console.error(error)
+      })
+
+      sensor.start()
+    } else if (isiOS11) {
+      window.addEventListener(`deviceorientation`, this.receiveiOSGyroscope)
+    } else {
+      // is iOS13+
+      document.getElementById(`ios-gyroscope`).click()
+    }
   }
 
   beginBatteryTracking = async () => {
-    const battery = await navigator.getBattery()
-    const {
-      charging,
-      level,
-      chargingTime,
-      dischargingTime
-    } = battery
-    this.setState({
-      battery: {
+    if (navigator && typeof navigator.getBattery === `function`) {
+      const battery = await navigator.getBattery()
+      const {
         charging,
         level,
         chargingTime,
         dischargingTime
-      }
-    })
+      } = battery
+      this.setState({
+        battery: {
+          charging,
+          level,
+          chargingTime,
+          dischargingTime
+        }
+      })
+    }
   }
 
-  componentDidMount() {
-
+  async componentDidMount() {
     if (!isSSR) {
-      // document.querySelector(`html`).requestFullscreen()
+      try {
+        await document.querySelector(`body`).requestFullscreen()
+      } catch (error) {
+        console.error(error)
+      }
+
       this.beginLocationTracking()
       if (isMobile) {
-        if (isApple) {
-          document.getElementById(`ios-gyroscope`).click()
-        } else {
-          this.beginOrientationTracking()
-          this.beginBatteryTracking()
-        }
+        this.beginOrientationTracking()
+        this.beginBatteryTracking()
       }
-      // window.navigator.vibrate([100, 100])
     }
   }
 
@@ -143,14 +154,34 @@ class LinkPage extends React.Component {
   }
 
   iosGyroscopePerms = async () => {
-    const perms = await window.DeviceMotionEvent.requestPermission()
-    if (perms === `granted`) {
-      window.addEventListener(`devicemotion`, this.receiveiOSGyroscope)
+    if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === `function`) {
+      const perms = await DeviceMotionEvent.requestPermission()
+      if (perms === `granted`) {
+        window.addEventListener(`deviceorientation`, this.receiveiOSGyroscope)
+      }
     }
   }
 
-  receiveiOSGyroscope = ({ accelerationIncludingGravity: { x, y, z } }) => {
-    this.setState({ orientation: [x, y, z, 0] })
+  receiveiOSGyroscope = (event) => {
+    const { alpha: z, gamma: x, beta: y } = event
+
+    const scale = (num, in_min, in_max, out_min, out_max) => {
+      return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    }
+
+    const convert = (z) => {
+      if (z >= 0 && z <= 90) {
+        return scale(z, 0, 90, 0.5, 1)
+      } else if (z >= 90 && z <= 180) {
+        return scale(z, 90, 180, -1, -0.5)
+      } else if (z >= 180 && z <= 270) {
+        return scale(z, 180, 270, -0.5, 0)
+      } else {
+        return scale(z, 270, 360, 0, 0.5)
+      }
+    }
+
+    this.setState({ orientation: [x, y, convert(z), 0] })
   }
 
   render() {
@@ -187,7 +218,12 @@ class LinkPage extends React.Component {
             <LiveMap
               lat={latitude}
               lng={longitude}
-              z={orientation[3]}
+              z={orientation[2]}
+              popupContent={
+                <>
+                  <span>Your location</span>
+                </>
+              }
             />
           </div>
           <div className="hidden">

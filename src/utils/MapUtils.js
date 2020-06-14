@@ -11,7 +11,11 @@ const getTriangleCoords = ({
     angle = 3 / 2 * Math.PI + (1 - z) / 0.5 * Math.PI / 2
   } else if (z < 0) {
     angle = Math.PI / 2 + (z / -1 * Math.PI)
+
   }
+
+  angle = angle + (3 * Math.PI / 2)
+  angle = (angle < 0) ? (2 * Math.PI - angle) : angle
 
   let fovRad = (fovDegree / 180 * Math.PI)
   let left = angle - fovRad

@@ -4,28 +4,33 @@ import { Map, TileLayer } from 'react-leaflet'
 
 const isSSR = typeof window === "undefined"
 
+const defaults = {
+  lat: "1.3521",
+  lng: "103.8198",
+  zoom: 12,
+}
 
 class ACESMap extends React.Component {
-  constructor(props) {
-    super(props)
-    const {
-      lat = "1.3521",
-      lng = "103.8198",
-      zoom = 12,
-    } = props
-    const viewpoint = { center: [lat, lng], zoom }
+  constructor() {
+    super()
     this.state = {
-      viewpoint
+      viewport: null
     }
   }
 
-  onViewportChanged = viewport => this.setState({ viewport })
+  onViewportChanged = viewport => {
+    const { lat, lng, } = viewport
+    if (lat && lng && lat !== defaults.lat && lng !== defaults.lng) {
+      this.setState({ viewport })
+    }
+  }
 
   render() {
+    const { viewport } = this.state
     const {
-      viewpoint
-    } = this.state
-    const {
+      lat = defaults.lat,
+      lng = defaults.lng,
+      zoom = defaults.zoom,
       children,
       mode = `Default`
     } = this.props
@@ -42,7 +47,10 @@ class ACESMap extends React.Component {
         {
           isSSR ? null : (
             <Map
-              viewport={viewpoint}
+              viewport={viewport ? viewport : {
+                center: { lat, lng },
+                zoom
+              }}
               style={{ height: `100%`, width: `100%` }}
               onViewportChanged={this.onViewportChanged}
             >

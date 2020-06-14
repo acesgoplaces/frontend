@@ -1,10 +1,16 @@
 import React from 'react'
 import Map from '../Map'
-import { Circle, Polygon } from 'react-leaflet'
+import { Circle, Polygon, Popup } from 'react-leaflet'
 
 import MapUtils from '../../utils/MapUtils'
 
-const LiveMap = ({ lat, lng, z = null }) => {
+const LiveMap = ({ lat, lng, z = null, popupContent = null }) => {
+  const popup = popupContent ? (
+    <Popup>
+      {popupContent}
+      {z}
+    </Popup>
+  ) : null
   return (
     <Map lat={lat} lng={lng} zoom={20}>
       {
@@ -15,8 +21,10 @@ const LiveMap = ({ lat, lng, z = null }) => {
                 coords: [lat, lng],
                 z,
               })
-            } />
-          ) : <Circle center={[lat, lng]} radius={10} />
+            }>
+              {popup}
+            </Polygon>
+          ) : <Circle center={[lat, lng]} radius={10}>{popup}</Circle>
         ) : null
       }
     </Map>
